@@ -1,4 +1,6 @@
 import mysql.connector
+from mysql.connector import errorcode
+from mysql.connector import Error
 
 # creating connection with mysql
 conn = mysql.connector.connect(
@@ -94,8 +96,70 @@ def update_data():
     cur.execute('select * from customer')
     show_result()
 
+# deleting data
 
-update_data()
+
+def delete_data():
+    cust_id = int(
+        input('Enter Customer id for which you want to delete data: '))
+    qry = 'delete from customer where cust_id=%s'
+    data = (cust_id,)
+    cur.execute(qry, data)
+    conn.commit()
+    cur.execute('select * from customer')
+    show_result()
+
+
+# use of rowcount
+def print_rowcount():
+    qry = 'select * from customer'
+    cur.execute(qry)
+    show_result()
+    print('Total ', cur.rowcount, " records present ")
+
+
+# use of fetchall
+def use_fetchall():
+    qry = 'select * from customer'
+    cur.execute(qry)
+    for row in cur.fetchall():
+        print('row ', row)
+    print('rowcount: ', cur.rowcount)
+
+# error handling while displaying records
+
+
+def display():
+    try:
+        cnx = mysql.connector.connect(
+            user='root', password='', host='localhost', database='telephonedir')
+        cursor = cnx.cursor()
+        query = 'select * from customer'
+        cursor.execute(query)
+        for(cid, cname, tel, dt) in cursor:
+            print(
+                "=====================================================================================")
+            print("Customer Id: ", cid)
+            print("Customer Name: ", cname)
+            print("Contact Number: ", tel)
+            print("Registered On: ", dt)
+            print(
+                "=====================================================================================")
+        cursor.close()
+        cnx.close()
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+            print('Something is wrong with username or password')
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+            print('Database does not exist')
+        else:
+            print(err)
+    else:
+        cnx.close()
+    print('You have done it!!')
+
+
+display()
 
 # closing connection
 conn.close()
